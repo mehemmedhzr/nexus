@@ -2,38 +2,38 @@
 import { Button } from "@/components/ui/button";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginFormValues, loginSchema } from "../schemas/login-schema";
 import { Eye, EyeClosed } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { useState } from "react";
-import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { RegisterFormValues, registerSchema } from "../schemas/register-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export function LoginForm() {
+export function RegisterForm() {
   const [showPassword, setShowPassword] = useState<true | false>(false);
   const [isLoading, setIsLoading] = useState<true | false>(false);
 
   const {
     handleSubmit,
     register,
-    formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: LoginFormValues) => {
+  const onSubmit = (data: RegisterFormValues) => {
     setIsLoading(true);
+    console.log(isSubmitting);
     setTimeout(() => {
       setIsLoading(false);
       console.log(data);
     }, 500);
   };
-
   return (
     <form
       action=""
@@ -47,10 +47,12 @@ export function LoginForm() {
           <FieldLabel htmlFor="fieldgroup-username">Username</FieldLabel>
           <Input
             id="fieldgroup-username"
+            aria-required="true"
             aria-invalid={!!errors.username}
-            autoFocus
             autoComplete="username"
+            autoFocus
             placeholder="hazar"
+            type="text"
             {...register("username")}
           />
           {errors.username && (
@@ -60,18 +62,34 @@ export function LoginForm() {
           )}
         </Field>
 
-        <Field className="relative" data-invalid={!!errors.password}>
+        <Field data-invalid={!!errors.email}>
+          <FieldLabel htmlFor="fieldgroup-email">E-mail</FieldLabel>
+          <Input
+            id="fieldgroup-email"
+            aria-invalid={!!errors.email}
+            autoComplete="email"
+            placeholder="hazar@gmail.com"
+            type="email"
+            {...register("email")}
+          />
+          {errors.email && (
+            <FieldError className="text-red-600">
+              {errors.email.message}
+            </FieldError>
+          )}
+        </Field>
+
+        <Field data-invalid={!!errors.password}>
           <FieldLabel htmlFor="fieldgroup-password">Password</FieldLabel>
           <div className="relative">
             <Input
               id="fieldgroup-password"
               aria-invalid={!!errors.password}
-              autoComplete="current-password"
-              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
               placeholder="********"
+              type="password"
               {...register("password")}
             />
-
             <Button
               className="absolute bottom-0 right-1 max-w-fit bg-transparent"
               type="button"
@@ -87,23 +105,15 @@ export function LoginForm() {
               />
             </Button>
           </div>
+          <FieldDescription>
+            Password must be at least 8 characters
+          </FieldDescription>
           {errors.password && (
             <FieldError className="text-red-600">
               {errors.password.message}
             </FieldError>
           )}
         </Field>
-
-        <FieldGroup className="flex flex-row items-center">
-            <Field orientation="horizontal">
-                <Input id="fieldgroup-rememberme" type="checkbox" className="max-w-fit"/>
-                <FieldLabel htmlFor="fieldgroup-rememberme">Remember me</FieldLabel>
-            </Field>
-
-            <Field>
-                <Link href='/forgot-password' className="text-end text-sm">Forgot password?</Link>
-            </Field>
-        </FieldGroup>
 
         <Button
           type="submit"
@@ -112,7 +122,7 @@ export function LoginForm() {
           variant="outline"
           className="font-mono cursor-pointer"
         >
-          {isLoading ? "Signing in..." : "Login"}
+          {isLoading ? "Signing up..." : "Sign up"}
         </Button>
       </FieldGroup>
     </form>
